@@ -3,8 +3,12 @@ import { LayoutComponent } from './layout/layout.component';
 import { DashboradComponent } from './dashborad/dashborad.component';
 import { TeamsComponent } from './teams/teams.component';
 import { HistoryComponent } from './history/history.component';
+import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
+    { path: 'login', component: LoginComponent },  // Login page
+    { path: '', redirectTo: 'login', pathMatch: 'full' },  // Default to login
+
     {path: 'layout' , component: LayoutComponent,
         children: [
             {path:'' , redirectTo:'dashboard' ,pathMatch:'full'},

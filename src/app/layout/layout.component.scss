@@ -1,0 +1,287 @@
+.navbar {
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+
+    &:hover {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+  }
+
+  .nav-link {
+    font-size: 1rem;
+    color: #333;
+    padding: 0.5rem 1rem;
+    position: relative;
+    transition: color 0.3s, transform 0.3s;
+
+    &:hover {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+
+    &.active {
+      color: #0d6efd;
+      font-weight: bold;
+
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #0d6efd;
+        border-radius: 2px;
+        transition: width 0.3s ease-in-out;
+      }
+    }
+  }
+
+  .user-info {
+    .username {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #333;
+
+      &:hover {
+        color: #0d6efd;
+      }
+    }
+
+    .dropdown-menu {
+      min-width: 250px;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem;
+
+    .nav-link {
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .user-info {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+  }
+}
+
+/* Modal Overlay */
+.change-password-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+/* Modal Card */
+.change-password-modal-card {
+background-color: #fff;
+padding: 20px;
+border-radius: 8px;
+width: 100%;
+max-width: 500px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-title {
+font-size: 1.25rem;
+margin-bottom: 20px;
+}
+
+/* Form Elements */
+.form-group {
+margin-bottom: 15px;
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+}
+}
+
+/* Password Input Wrapper */
+.password-input-wrapper {
+position: relative;
+display: flex;
+align-items: center;
+
+.form-input {
+  width: 100%;
+  padding-right: 40px; /* Space for the icon */
+}
+
+.password-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 1.25rem;
+  color: #007bff;
+  cursor: pointer;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #0056b3;
+  }
+
+  &.active {
+    color: #28a745; /* Color for 'active' state (password visible) */
+  }
+}
+}
+
+.error-messages {
+color: red;
+font-size: 12px;
+margin-top: 5px;
+}
+.password-note {
+margin-top: 5px;
+color: #6c757d; /* Light gray color for note text */
+font-size: 0.85rem; /* Slightly smaller font size */
+}
+
+
+
+/* Buttons */
+.form-submit-btn,
+.form-cancel-btn {
+width: 100%;
+padding: 10px;
+margin-top: 10px;
+font-size: 1rem;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s;
+
+&:hover {
+  background-color: #0056b3;
+}
+
+&[type="button"].form-cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+&[type="submit"].form-submit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+&:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+}
+
+
+//* Response Card */
+.response-card-container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark background */
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000; /* Ensure it's above other elements */
+
+.response-card {
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+  border-radius: 12px; /* Slightly more rounded */
+  width: 350px; /* Wider card for desktop */
+  text-align: center;
+
+  .response-message {
+    margin-bottom: 15px;
+    font-size: 1.2rem; /* Slightly larger font for better readability */
+    color: #333; /* Darker text color */
+  }
+
+  .response-ok-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #218838; /* Darker green on hover */
+    }
+
+    &:active {
+      background-color: #1e7e34; /* Even darker green when clicked */
+    }
+  }
+}
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 600px) {
+.response-card-container {
+  .response-card {
+    width: 90%; /* Adjust width for smaller screens */
+    padding: 15px;
+  }
+
+  .response-message {
+    font-size: 1rem; /* Slightly smaller font for mobile */
+  }
+
+  .response-ok-btn {
+    font-size: 0.9rem; /* Adjust button text size */
+    padding: 10px;
+  }
+}
+}
+
+
+
+
+

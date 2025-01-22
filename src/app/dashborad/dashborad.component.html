@@ -1,0 +1,128 @@
+<div class="container">
+ 
+    <div class="dashboard-container">
+      <div class="datedown">
+        <div class="date-container">
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Date Filter</mat-label>
+            <mat-select [(value)]="selectedDateRange" (selectionChange)="applyDateFilter()">
+              <mat-option value="today">Today</mat-option>
+              <mat-option value="yesterday">Yesterday</mat-option>
+              <mat-option value="thisWeek">This Week</mat-option>
+              <mat-option value="thisMonth">This Month</mat-option>
+              <mat-option value="custom">Custom Range</mat-option>
+            </mat-select>
+          </mat-form-field>
+    
+          <div *ngIf="selectedDateRange === 'custom'" class="custom-date-range">
+            <mat-form-field appearance="outline" class="date-field">
+              <mat-label>Start Date</mat-label>
+              <input matInput [(ngModel)]="customStartDate" placeholder="MM/DD/YYYY" [matDatepicker]="startPicker" (ngModelChange)="applyDateFilter()" />
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="date-field">
+              <mat-label>End Date</mat-label>
+              <input matInput [(ngModel)]="customEndDate" placeholder="MM/DD/YYYY" [matDatepicker]="endPicker" (ngModelChange)="applyDateFilter()" />
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+            
+          </div>
+        </div>
+      </div>
+    
+      
+  
+  
+    <!-- Card Component -->
+    <mat-card class="custom-card">
+      <div class="card-header">
+        <!-- <div class="greeting">Good Morning</div> -->
+        <div class="task">
+          <!-- <span>Task Generation</span> -->
+          <mat-form-field class="dropdown" appearance="outline">
+            <mat-label>Options</mat-label>
+            <mat-select [(ngModel)]="taskOption" (selectionChange)="onOptionSelect()">
+              <mat-option value="generate">Generate</mat-option>
+              <mat-option value="import">Import</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      
+      <div *ngIf="showFileInput" class="file-import">
+        <label for="fileUpload">Upload File:</label>
+        <input type="file" id="fileUpload" accept=".csv, .pdf" (change)="onFileUpload($event)" />
+        <button mat-raised-button color="primary" (click)="onSaveFile()">Import</button>
+      </div>
+      
+      <div *ngIf="showFileUploadAlert" class="custom-alert">
+        <div class="alert-content">
+          <p>{{ fileUploadAlertMessage }}</p>
+          <button (click)="closeFileUploadAlert()">OK</button>
+        </div>
+      </div>
+  
+      <div *ngIf="taskOption === 'generate'" class="generate-option">
+        <hr />
+        <span>Generate the token</span>
+        <button mat-raised-button color="accent" (click)="generateToken()">Generate</button>
+      </div>
+      </mat-card>
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="table-container">
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8 custom-table">
+  
+      <!-- Teams Column -->
+      <ng-container matColumnDef="teams">
+        <mat-header-cell *matHeaderCellDef> Teams </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.teams }} </mat-cell>
+      </ng-container>
+  
+      <!-- Orders Column -->
+      <ng-container matColumnDef="orders">
+        <mat-header-cell *matHeaderCellDef> Orders </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.orders }} </mat-cell>
+      </ng-container>
+  
+      <!-- Allocated Column -->
+      <ng-container matColumnDef="allocated">
+        <mat-header-cell *matHeaderCellDef> Allocated </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.allocated }} </mat-cell>
+      </ng-container>
+  
+      <!-- Status Column with status-chip -->
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="status-chip" [ngClass]="{
+            'completed': element.status === 'Completed',
+            'pending': element.status === 'Pending'
+          }">
+            {{ element.status }}
+          </span>
+        </mat-cell>
+      </ng-container>
+  
+      <!-- Header Row -->
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  
+      <!-- Data Row -->
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  
+    <div class="loading-spinner" *ngIf="isLoading">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+  

@@ -1,0 +1,159 @@
+<p>history works!</p>
+<mat-card class="history-card">
+    <!-- <h2 class="card-heading">Orders Data</h2> -->
+    <div class="form-container">
+      <mat-form-field class="example-full-width">
+        <mat-label>Choose a date</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate" (dateChange)="onFilterChange()">
+        <mat-hint>MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker">
+          <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+  
+      <!-- Paid Status Filter -->
+  <!-- Paid Status Filter -->
+  <!-- Paid Status Filter -->
+  <mat-form-field class="example-full-width">
+    <mat-select
+      [placeholder]="selectedPaidStatus ? 'Paid ' : 'All Paid '"
+      [(value)]="selectedPaidStatus"
+      (selectionChange)="onFilterChange()">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option value="Paid">Paid</mat-option>
+      <mat-option value="Unpaid">Unpaid</mat-option>
+    </mat-select>
+  </mat-form-field>
+  
+  <!-- Team Names Filter -->
+  <mat-form-field class="example-full-width">
+    <mat-select
+      [placeholder]="selectedTeamName ? 'Team Name' : 'All Teams'"
+      [(value)]="selectedTeamName"
+      (selectionChange)="onFilterChange()">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let team of teamNames" [value]="team.name">
+        {{ team.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  
+  
+      
+      <!-- Verify Orders Filter -->
+    <mat-form-field class="example-full-width">
+      <mat-select placeholder="Verify Orders" [(ngModel)]="selectedVerifyStatus" (selectionChange)="onFilterChange()">
+        <mat-option [value]="'NoVerify'">Don't Verify</mat-option>
+        <mat-option [value]="'Verify'">Verify</mat-option>
+      </mat-select>
+    </mat-form-field>
+  
+      <button mat-raised-button color="primary" class="search-btn" (click)="searchByDate()" [disabled]="loading">Search</button>
+    </div>
+  </mat-card>
+  
+  <!-- <div class="table-header">
+    <h2 class="table-heading">Leads Table - {{ selectedDate | date: 'MM/dd/yyyy' }}</h2>
+  </div> -->
+  
+  <div class="stats-container">
+    <!-- <mat-card class="stat-card">
+      <mat-card-title>Total Orders</mat-card-title>
+      <mat-card-content>{{ totalOrders }}</mat-card-content>
+    </mat-card> -->
+    <mat-card class="stat-card">
+      <mat-card-title>Total Allocated</mat-card-title>
+      <mat-card-content>{{ totalAllocatedOrders }}</mat-card-content>
+    </mat-card>
+    <mat-card class="stat-card">
+      <mat-card-title>Paid Orders</mat-card-title>
+      <mat-card-content>{{ paidOrders }}</mat-card-content>
+    </mat-card>
+  
+    <mat-card class="stat-card">
+      <mat-card-title>Unpaid Orders</mat-card-title>
+      <mat-card-content>{{ unpaidOrders }}</mat-card-content>
+    </mat-card>
+  
+  
+  </div>
+  <!-- Export Section -->
+  <div class="export-section">
+    <!-- <h3 class="export-heading">Export Today's Data</h3> -->
+    <button mat-raised-button color="accent" class="export-btn" (click)="downloadData()">Download</button>
+  </div>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  
+  
+  <mat-table [dataSource]="dataSource" class="custom-table">
+    <ng-container matColumnDef="srNo" >
+      <mat-header-cell *matHeaderCellDef >Sr No.</mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index" >{{ i + 1 }}</mat-cell>
+    </ng-container>
+    <!-- Order ID Column -->
+    <ng-container matColumnDef="orderId">
+      <mat-header-cell *matHeaderCellDef>Order ID</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.orderId }}</mat-cell>
+    </ng-container>
+  
+    <ng-container matColumnDef="coupon">
+      <mat-header-cell *matHeaderCellDef>Coupon</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.coupon }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="orderType">
+      <mat-header-cell *matHeaderCellDef>OrderType</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.orderType }}</mat-cell>
+    </ng-container>
+  
+     <!-- Order Link Column -->
+     <ng-container matColumnDef="orderLink">
+      <mat-header-cell *matHeaderCellDef>Order Link</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <a [href]="element.orderLink" target="_blank" *ngIf="element.orderLink !== 'N/A'">
+          {{ element.orderLink }}
+        </a>
+        <span *ngIf="element.orderLink === 'N/A'">N/A</span>
+      </mat-cell>
+    </ng-container>
+  
+    <!-- Allocated Team ID Column -->
+    <ng-container matColumnDef="allocatedTeamName">
+      <mat-header-cell *matHeaderCellDef>Allocated Team Name</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.allocatedTeamName }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="verification">
+      <mat-header-cell *matHeaderCellDef>Verification</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.verification }}</mat-cell>
+    </ng-container>
+  
+    <!-- Allocated Member Column -->
+    <ng-container matColumnDef="allocatedMember">
+      <mat-header-cell *matHeaderCellDef>Allocated Member</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.allocatedMember || 'Not Allocated' }}</mat-cell>
+    </ng-container>
+  
+    <!-- Payment Status Column -->
+    <!-- Merged Column -->
+  <ng-container matColumnDef="mergedColumn">
+    <mat-header-cell *matHeaderCellDef>Details</mat-header-cell>
+    <mat-cell *matCellDef="let element">
+      <div>
+        <div><strong>Pay Status:</strong> {{ element.paymentStatus }}</div>
+        <div><strong>Profit:</strong> <i class="bi bi-currency-rupee"></i>{{ element.profit }}</div>
+        <div><strong>Member Profit:</strong> <i class="bi bi-currency-rupee"></i>{{ element.memberProfit }}</div>
+      </div>
+    </mat-cell>
+  </ng-container>
+  
+  
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  
+  
+  
+  <div  *ngIf="loading" class="loader-container">
+    <div class="loader"></div>
+    <div class="loader-text">Loading...</div>
+  </div>

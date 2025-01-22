@@ -1,0 +1,310 @@
+/* General Container Styling */
+.container {
+    max-width: 1500px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px; // Added padding to give some space inside the container
+  }
+  
+  /* Card Styling */
+  .custom-card,
+  .form-card,
+  .edit-card {
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff; // Default white background
+  }
+  
+  /* Custom Card (light grey background) */
+  .custom-card {
+    background-color: #f5f5f5;
+  }
+  
+  /* Form and Edit Cards (White background) */
+  .form-card,
+  .edit-card {
+    background-color: #ffffff;
+  }
+  
+  /* Card Title */
+  mat-card-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #003366; // Dark blue color for card titles
+    margin-bottom: 10px;
+  }
+  
+  /* Form Field Styling */
+  .form-field {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  /* Button Styling */
+  button {
+    margin-top: 10px;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    // Default blue button
+    // background-color: #007bff;
+  
+    &:hover {
+      background-color: #0056b3; // Darker blue on hover
+      color: white; // Ensure text is visible on hover
+    }
+  }
+  
+  /* Radio Button Group Styling */
+  .radio-button {
+    margin-right: 15px;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  ::ng-deep {
+    .custom-table {
+      mat-table {
+        width: 100%;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        overflow: hidden;
+        font-size: 18px;
+      }
+  
+      /* Header Styling */
+      mat-header-row {
+        background-color: #003366 !important;
+        height: 64px;
+      }
+  
+      mat-header-cell {
+        font-weight: bold;
+        color: white;
+        padding: 20px;
+        text-align: left;
+        font-size: 20px;
+      }
+  
+      /* Cell Styling */
+      mat-cell {
+        padding: 20px;
+        text-align: left;
+        font-size: 18px;
+        border-bottom: 1px solid #e1e1e1;
+      }
+  
+      mat-row {
+        height: 64px;
+      }
+  
+      mat-row:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+  
+      mat-row:hover {
+        background-color: #e0f0ff;
+      }
+  
+      button {
+        margin: 0 5px;
+      }
+  
+      /* Responsive Design for Mobile */
+      @media (max-width: 768px) {
+        mat-table {
+          display: none; /* Hide the table */
+        }
+  
+        .table-container {
+          display: flex;
+          flex-direction: column;
+          gap: 16px; /* Space between team cards */
+        }
+  
+        .team-card {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding: 16px;
+          margin-bottom: 16px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          background-color: #ffffff;
+          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  
+          .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+  
+            .header {
+              font-weight: bold;
+              font-size: 16px;
+              color: #333333;
+            }
+  
+            .info {
+              font-size: 16px;
+              color: #666666;
+              text-align: right;
+              word-wrap: break-word;
+            }
+          }
+  
+          .actions {
+            display: flex;
+            gap: 8px;
+  
+            button {
+              font-size: 14px;
+              padding: 4px 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+
+  
+  /* Edit Button Hover Fix */
+ /* Edit Button Styling */
+button.edit-btn {
+    background-color: #28a745; // Green background for "Edit" button
+    
+    &:hover {
+      background-color: #218838; // Darker green on hover
+      color: white; // Ensure "Edit" text remains visible
+    }
+  }
+  
+  /* Overlay for Dim Background */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); // Semi-transparent black
+  z-index: 5; // Ensure it's below the cards
+}
+
+/* Scoped Styles for Members and Edit Cards */
+.members-card,
+.edit-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10; // Above the overlay
+  padding: 20px;
+  animation: openCard 0.3s ease-out forwards;
+
+  /* Animation for Cards */
+  @keyframes openCard {
+    0% {
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+/* Members Card Specific Styles */
+.members-card {
+  mat-card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #003366;
+  }
+
+  .member-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+
+    button {
+      margin-left: 10px;
+    }
+  }
+}
+
+/* Edit Card Specific Styles */
+.edit-card {
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+}
+
+/* Generic Styles for Cards (Exclude Members and Edit Cards) */
+.custom-card,
+.form-card {
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #ffffff; // Default white background
+}
+
+/* Responsive Design for Members and Edit Cards */
+@media (max-width: 768px) {
+  .members-card,
+  .edit-card {
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+.member-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  mat-form-field {
+    flex: 1; // Take up remaining space
+    margin-right: 10px;
+  }
+
+  button {
+    flex-shrink: 0; // Prevent shrinking of button
+  }
+}
+
+.form-card {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+button {
+  margin-top: 10px;
+}
+.success-snackbar {
+  background-color: #4caf50; /* Green color for success */
+  color: white;
+}

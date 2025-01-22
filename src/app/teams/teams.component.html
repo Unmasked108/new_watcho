@@ -1,0 +1,149 @@
+<div class="container">
+    <!-- Card Component for Options -->
+    <mat-card class="custom-card">
+      <mat-card-title>Team</mat-card-title>
+      <mat-card-content>
+        <mat-radio-group [(ngModel)]="selectedOption">
+          <mat-radio-button value="manage" class="radio-button">Manage Team</mat-radio-button>
+          <mat-radio-button value="generate" class="radio-button">Create Team</mat-radio-button>
+        </mat-radio-group>
+      </mat-card-content>
+    </mat-card>
+  
+    <!-- Generate Team Form -->
+   <!-- Generate Team Form -->
+  <form *ngIf="selectedOption === 'generate'" [formGroup]="teamForm" (ngSubmit)="onGenerateTeam()">
+    <mat-card class="form-card">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Team ID</mat-label>
+        <input matInput formControlName="teamId" required />
+      </mat-form-field>
+  
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Team Name</mat-label>
+        <input matInput formControlName="teamName" required />
+      </mat-form-field>
+  
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Team Leader Email</mat-label>
+        <input matInput formControlName="teamLeaderEmail" required />
+      </mat-form-field>
+  
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Capacity of Team</mat-label>
+        <input matInput type="number" formControlName="capacity" required />
+      </mat-form-field>
+  
+      <label>Members Emails:</label>
+      <div formArrayName="membersList" *ngFor="let member of membersList.controls; let i = index" class="member-input">
+        <mat-form-field class="form-field" appearance="outline">
+          <input matInput [formControlName]="i" placeholder="Enter Member Email" required />
+        </mat-form-field>
+        <button mat-raised-button color="warn" (click)="removeMember(i)" type="button">Remove</button>
+      </div>
+  
+      <button mat-raised-button color="primary" (click)="addMemberToForm()" type="button">
+        Add Member
+      </button>
+  
+      <button mat-raised-button color="accent" type="submit">Create Team</button>
+    </mat-card>
+  </form>
+  
+  <!-- Manage Team Table -->
+  <div *ngIf="selectedOption === 'manage'" class="table-container">
+    <mat-table [dataSource]="teams" class="mat-elevation-z8 custom-table">
+      <!-- Team Name Column -->
+      <ng-container matColumnDef="teamName">
+        <mat-header-cell *matHeaderCellDef> Team Name </mat-header-cell>
+        <mat-cell *matCellDef="let team"> {{ team.teamName }} </mat-cell>
+      </ng-container>
+  
+      <!-- Team ID Column -->
+      <ng-container matColumnDef="teamId">
+        <mat-header-cell *matHeaderCellDef> Team ID </mat-header-cell>
+        <mat-cell *matCellDef="let team"> {{ team.teamId }} </mat-cell>
+      </ng-container>
+  
+      <!-- Capacity Column -->
+      <ng-container matColumnDef="capacity">
+        <mat-header-cell *matHeaderCellDef> Capacity </mat-header-cell>
+        <mat-cell *matCellDef="let team"> {{ team.capacity }} </mat-cell>
+      </ng-container>
+  
+      <!-- No. of Members Column -->
+      <ng-container matColumnDef="numMembers">
+        <mat-header-cell *matHeaderCellDef> No. of Members </mat-header-cell>
+        <mat-cell *matCellDef="let team"> {{ team.numMembers }} </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="paymentReceived">
+        <mat-header-cell *matHeaderCellDef> Total Payment Given  </mat-header-cell>
+        <mat-cell *matCellDef="let team"> {{ team.paymentReceived  }} </mat-cell>
+      </ng-container>
+  
+      <!-- Members Column -->
+      <ng-container matColumnDef="members">
+        <mat-header-cell *matHeaderCellDef> Members </mat-header-cell>
+        <mat-cell *matCellDef="let team">
+          <button mat-button color="primary" (click)="selectTeam(team); showMembers(team.membersList)">Show Members</button>
+        </mat-cell>
+      </ng-container>
+  
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+        <mat-cell *matCellDef="let team">
+          <button mat-button color="primary" (click)="editTeam(team)">Edit</button>
+          <button mat-button color="warn" (click)="deleteTeam(team.teamId)">Delete</button>
+        </mat-cell>
+      </ng-container>
+  
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </div>
+  
+  
+      <!-- Background Overlay -->
+  <div class="overlay" *ngIf="selectedTeam || editingTeam"></div>
+  
+  <!-- Members Card -->
+  <mat-card *ngIf="selectedTeam" class="members-card">
+    <mat-card-title>
+      {{ selectedTeam.teamName }} Members
+      <button mat-button color="accent" (click)="addMember(selectedTeam.teamId)">+ Add Member</button>
+    </mat-card-title>
+    <mat-card-content>
+      <div *ngFor="let member of selectedTeam.membersList; let i = index" class="member-row">
+        <span>{{ member.name }}</span>
+        <button mat-button color="primary"  (click)="editMember(selectedTeam.teamId,member.userId)" >Edit</button>
+  
+        <button mat-button color="warn" (click)="deleteMember(selectedTeam.teamId,member.userId)">Delete</button>
+      </div>
+    </mat-card-content>
+    <button mat-raised-button color="warn" (click)="closeMembersCard()">Close</button>
+  </mat-card>
+  
+  
+  <!-- Edit Team Card -->
+  <mat-card *ngIf="editingTeam" class="edit-card" (animationend)="onAnimationEnd()">
+    <mat-card-title>Edit Team</mat-card-title>
+    <mat-card-content>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Team Name</mat-label>
+        <input matInput [(ngModel)]="editingTeam.teamName" name="editTeamName" />
+      </mat-form-field>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label>Capacity</mat-label>
+        <input matInput type="number" [(ngModel)]="editingTeam.capacity" name="editCapacity" />
+      </mat-form-field>
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="saveTeam(editingTeam.teamId)">Save</button>
+        <button mat-raised-button color="warn" (click)="deleteTeam(editingTeam.teamId)">Delete</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  
+        
+    

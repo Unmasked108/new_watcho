@@ -1,0 +1,283 @@
+/* Styling for the table container */
+/* General container for the layout */
+.container {
+    display: flex;
+    flex-direction: column;
+  
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;  /* Light background for contrast */
+    border-radius: 10px;
+  }
+  /* Styling for the date container card */
+  .datedown {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  
+    .date-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+  
+      .date-field {
+        width: 200px;
+      }
+    }
+  
+    .custom-date-range {
+      display: flex;
+      gap: 16px;
+    }
+  }
+  .custom-card {
+    margin-top: 50px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  
+    // Ensure proper alignment for all child elements
+    .card-header,
+    .generate-option,
+    .allocation-action {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+  
+      // Mobile alignment
+      text-align: left;
+  
+      @media (min-width: 768px) {
+        text-align: center;
+        align-items: center;
+      }
+    }
+  
+    .task {
+      display: flex;
+      flex-direction: column; // Stack items vertically for mobile
+      gap: 10px;
+  
+      @media (min-width: 768px) {
+        flex-direction: row; // Align items horizontally for desktop
+        justify-content: center;
+      }
+  
+      .dropdown {
+        width: 100%; // Take full width on mobile
+        max-width: 160px;
+  
+        .mat-form-field-infix {
+          background-color: #e9ecef;
+        }
+  
+        .mat-select-trigger {
+          color: #007bff;
+          font-weight: 600;
+        }
+      }
+    }
+  
+    .allocation-action {
+      display: flex;
+      flex-direction: column; // Stack items vertically for mobile
+      align-items: flex-start;
+  
+      @media (min-width: 768px) {
+        flex-direction: row; // Align items horizontally for desktop
+        justify-content: center;
+        align-items: center;
+      }
+  
+      span {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #070707;
+      }
+  
+      button {
+        width: 100%; // Full width on mobile
+        margin-top: 10px;
+  
+        @media (min-width: 768px) {
+          width: auto; // Auto width for desktop
+          margin-left: 10px; // Add spacing for desktop
+          margin-top: 0;
+        }
+      }
+    }
+  
+    .generate-option {
+      display: flex;
+      flex-direction: column; // Stack items vertically for mobile
+      gap: 15px;
+  
+      hr {
+        border: 1px solid #007bff;
+        margin-bottom: 15px;
+      }
+  
+      span {
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+  
+      button {
+        width: 100%; // Full width on mobile
+        font-size: 1rem;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+  
+        &:hover {
+          background-color: #0056b3;
+        }
+  
+        @media (min-width: 768px) {
+          width: auto; // Auto width for desktop
+        }
+      }
+    }
+  
+    .file-import {
+      display: flex;
+      flex-direction: column; // Stack items vertically for mobile
+      gap: 10px;
+  
+      label {
+        margin-bottom: 5px;
+      }
+  
+      input {
+        margin-bottom: 10px;
+      }
+  
+      button {
+        width: 100%; // Full width on mobile
+  
+        @media (min-width: 768px) {
+          width: auto; // Auto width for desktop
+        }
+      }
+  
+      @media (min-width: 768px) {
+        flex-direction: row; // Align items horizontally for desktop
+        align-items: center;
+        justify-content: center;
+  
+        label,
+        input,
+        button {
+          margin: 0 10px;
+        }
+      }
+    }
+  }
+  
+  
+    /* File import section */
+    .file-import {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+  
+      label {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #333;
+      }
+  
+      input[type="file"] {
+        padding: 10px;
+        font-size: 1rem;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        transition: border-color 0.3s ease;
+  
+        &:hover {
+          border-color: #007bff;  /* Blue border on hover */
+        }
+      }
+    }
+  
+  
+  
+
+
+
+
+
+
+
+.table-container {
+    width: 80%; /* Set the container width to 80% */
+    margin: 0 auto; /* Center the container horizontally */
+    padding: 20px; /* Optional: Add padding inside the container */
+    overflow-x: auto; /* Allow horizontal scrolling if the table is too wide */
+    box-sizing: border-box; /* Ensures padding doesn't affect width calculation */
+  }
+  
+  /* Styling for the table */
+  .custom-table {
+    width: 100%; /* Table takes up the full width of the container */
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    mat-header-cell {
+      font-weight: bold;
+      background-color: #003366 !important; /* Blue background for header */
+      color: white;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 2px solid #e1e1e1;
+    }
+  
+    mat-cell {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e1e1e1;
+    }
+  
+    mat-row:nth-child(even) {
+      background-color: #f1f9fc; /* Light blue for even rows */
+    }
+  
+    mat-row:hover {
+      background-color: #e0f7fa; /* Lighter blue on hover */
+    }
+  
+    /* Styling for the status chip */
+    .status-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  
+    .status-chip.completed {
+      background-color: #28a745; /* Green for completed */
+      color: white;
+    }
+  
+    .status-chip.pending {
+      background-color: #ffc107; /* Yellow for pending */
+      color: black;
+    }
+  }
+  

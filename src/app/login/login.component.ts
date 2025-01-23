@@ -296,7 +296,7 @@ isLoginFlow: boolean = false;  // Define the isLoginFlow property
         this.router.navigate(['/layout']); // Admin layout
         break;
       case 'TeamLeader':
-        this.router.navigate(['/TeamsManager']); // Team manager page
+        this.router.navigate(['/layout']); // Team manager page
         break;
       default:
         this.router.navigate(['/users']); // Default for team members

@@ -15,6 +15,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core'
 import { CookieService } from 'ngx-cookie-service';  // Import the CookieService
 import { MatCheckboxModule } from '@angular/material/checkbox';
+interface TeamCount {
+  teamId: string;
+  allocatedCount: number;
+  completionCount: number;
+}
 
 @Component({
   selector: 'app-dashborad',
@@ -65,91 +70,158 @@ export class DashboradComponent implements OnInit{
    card149Profit : number=0;
    card299Profit : number=0;
 // Add the global date range variables
-selectedStartDate: Date | null = null;
-selectedEndDate: Date | null = null;
 
-applyDateFilter(): void {
-  let startDate: Date | null = null;
-  let endDate: Date | null = null;
+selectedStartDate: Date = new Date(); // Default start date
+selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | null = null;
 
-  // Save the selected date range option to localStorage
-  localStorage.setItem('selectedDateRange', this.selectedDateRange);
+ /**
+   * Apply date filter based on the selected range
+   */
+ constructor(private http: HttpClient) {}
 
-  // Determine the date range based on the selected option
-  if (this.selectedDateRange === 'today') {
-    const today = new Date();
-    startDate = endDate = today;
-  } else if (this.selectedDateRange === 'yesterday') {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    startDate = endDate = yesterday;
-  } else if (this.selectedDateRange === 'thisWeek') {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startDate = startOfWeek;
-    endDate = today;
-  } else if (this.selectedDateRange === 'thisMonth') {
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    startDate = startOfMonth;
-    endDate = today;
-  } else if (this.selectedDateRange === 'custom') {
-    if (!this.customStartDate || !this.customEndDate) {
-      console.warn('Incomplete custom date range!');
-      return;
-    }
-    startDate = new Date(this.customStartDate);
-    endDate = new Date(this.customEndDate);
+ ngOnInit(): void {
+   // Set default dates
+   if (!this.selectedStartDate || !this.selectedEndDate) {
+     const today = new Date();
+     this.selectedStartDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+     this.selectedEndDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999)); // End of today
+   }
+ 
+   this.fetchData(); // Fetch teams
+ }
+ 
+ /**
+  * Fetch teams from the backend
+  */
+ fetchData(): void {
+   const headers = new HttpHeaders({
+     Authorization: `Bearer ${localStorage.getItem('token')}`,
+   });
+ 
+   this.http.get<any[]>('http://localhost:5000/api/teams', { headers }).subscribe({
+     next: (teams) => {
+       const formattedData = teams.map((team) => ({
+         teamId: team.teamId,
+         teams: team.teamName,
+         allocated: '0/0', // Placeholder until fetched from API
+         status: 'Pending', // Default placeholder
+       }));
+ 
+       this.dataSource.data = formattedData;
+       console.log('Teams Data:', formattedData);
+ 
+       // After teams are loaded, apply date filter and fetch orders
+       this.applyDateFilter();
+     },
+     error: (error) => {
+       console.error('Error fetching teams:', error);
+     },
+   });
+ }
+ 
+ /**
+  * Apply date filter based on the selected range
+  */
+ applyDateFilter(): void {
+   let startDate: Date | null = null;
+   let endDate: Date | null = null;
+ 
+   if (this.selectedDateRange === 'today') {
+     const today = new Date();
+     startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+   } else if (this.selectedDateRange === 'yesterday') {
+     const yesterday = new Date();
+     yesterday.setDate(yesterday.getDate() - 1);
+ 
+     startDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate())); // Start of yesterday
+     endDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate(), 23, 59, 59, 999)); // End of yesterday
+   } else if (this.selectedDateRange === 'thisWeek') {
+     const today = new Date();
+     const startOfWeek = new Date(today);
+     startOfWeek.setDate(today.getDate() - today.getDay());
+     startDate = new Date(Date.UTC(startOfWeek.getUTCFullYear(), startOfWeek.getUTCMonth(), startOfWeek.getUTCDate()));
+     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+   } else if (this.selectedDateRange === 'thisMonth') {
+     const today = new Date();
+     startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+   } else if (this.selectedDateRange === 'custom') {
+     if (!this.customStartDate || !this.customEndDate) {
+       console.warn('Incomplete custom date range!');
+       return;
+     }
+     startDate = new Date(this.customStartDate);
+     endDate = new Date(this.customEndDate);
+     endDate.setHours(23, 59, 59, 999); // End of day for custom range
+   }
+ 
+   // Now that teams are fetched, call fetchOrdersData
+   this.fetchOrdersData(startDate, endDate);
+ }
+ 
+ /**
+  * Fetch orders data based on the selected date range
+  */
+ fetchOrdersData(startDate: Date | null, endDate: Date | null): void {
+  if (!startDate || !endDate) return;
 
-    // Save custom date range as well
-    localStorage.setItem('customStartDate', this.customStartDate.toISOString());
-localStorage.setItem('customEndDate', this.customEndDate.toISOString());
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  });
 
-  }
+  const teamIds = this.dataSource.data.map((team) => team.teamId);
 
-  // Store the selected date range globally
-  this.selectedStartDate = startDate;
-  this.selectedEndDate = endDate;
+  const params = {
+    date: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    orderType: this.selectedOrderType,
+    teamIds: JSON.stringify(teamIds),
+  };
 
-  // Fetch data for the selected date range
-  // this.fetchLeadsData(startDate, endDate);
+  console.log("Request Parameters:", params);
 
-  // // Call method to update allocations based on the selected date range
-  // this.updateAllocationsBasedOnDateRange();
+  this.http
+    .get<any>('http://localhost:5000/api/fetch-orders', { headers, params })
+    .subscribe({
+      next: (data) => {
+        console.log("Response from Backend:", data);
+        if (data.success) {
+          // Ensure teamCounts is of the correct type
+          const teamCounts: TeamCount[] = data.teamCounts;
+
+          const updatedTeams = this.dataSource.data.map((team) => {
+            // Find the correct team data using the explicit type for 'item'
+            const teamData = teamCounts.find((item: TeamCount) => item.teamId === team.teamId);
+            if (teamData) {
+              const allocated = teamData.allocatedCount;
+              const completed = teamData.completionCount;
+              team.allocated = `${completed}/${allocated}`; // Update to show completed/allocated
+              team.status = allocated > 0 ? 'Allocated' : 'Pending';
+            }
+            return team;
+          });
+
+          this.dataSource.data = updatedTeams;
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching orders:', error);
+      },
+    });
 }
 
 
 
 
+updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
+  this.dataSource.data = this.dataSource.data.map((team) => ({
+    ...team,
+    allocated: `${completionCount}/${allocatedCount}`,
+  }));
+}
 
-  constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-    this.fetchData();
-  }
-
-  fetchData(): void {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    });
-
-    this.http.get<any[]>('http://localhost:5000/api/teams', { headers }).subscribe({
-      next: (teams) => {
-        // Transform data to only include teamId and teamName
-        const formattedData = teams.map((team) => ({
-          teamId: team.teamId, // Use the frontend-defined teamId
-          teams: team.teamName, // Assuming `teamName` is the team's name
-        }));
-
-        this.dataSource.data = formattedData;
-        console.log('Teams Data:', formattedData);
-      },
-      error: (error) => {
-        console.error('Error fetching teams:', error);
-      },
-    });
-  }
   allocateOrders(): void {
     const token = localStorage.getItem('token'); // Get JWT token
     if (!token) {

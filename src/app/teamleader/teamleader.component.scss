@@ -1,0 +1,256 @@
+.container {
+    display: flex;
+    flex-direction: column;
+  
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;  /* Light background for contrast */
+    border-radius: 10px;
+  }
+  /* Styling for the date container card */
+  .datedown {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  
+    .date-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+  
+      .date-field {
+        width: 200px;
+      }
+    }
+  
+    .custom-date-range {
+      display: flex;
+      gap: 16px;
+    }
+  }
+
+
+
+/* Styling for the table container */
+.table-container {
+    width: 100%; /* Ensure the table takes up full width */
+    margin: 0 auto; /* Center container horizontally */
+    padding: 20px;
+    overflow-x: auto; /* Enable horizontal scrolling for extra-wide tables */
+    box-sizing: border-box;
+  
+    @media (max-width: 768px) {
+      padding: 10px; /* Reduce padding for smaller screens */
+    }
+  }
+  
+  /* Styling for the table */
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  
+    mat-header-cell,
+    mat-cell {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e1e1e1;
+      word-wrap: break-word; /* Break long text into the next line */
+    }
+  
+    mat-header-cell {
+      font-weight: bold;
+      background-color: #003366 !important;
+      color: white;
+      border-bottom: 2px solid #e1e1e1;
+    }
+  
+    mat-row:nth-child(even) {
+      background-color: #f1f9fc;
+    }
+  
+    mat-row:hover {
+      background-color: #e0f7fa;
+    }
+  
+    /* Mobile adjustments for the table */
+    @media (max-width: 768px) {
+      mat-header-cell,
+      mat-cell {
+        font-size: 12px; /* Reduce font size */
+        padding: 8px; /* Reduce padding */
+      }
+  
+      mat-header-cell {
+        white-space: nowrap; /* Prevent header text from breaking */
+      }
+  
+      mat-cell {
+        white-space: normal; /* Allow content to wrap as needed */
+      }
+    }
+  }
+  
+  /* Styling for the status chip */
+  .status-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  
+    &.completed {
+      background-color: #28a745;
+      color: white;
+    }
+  
+    &.pending {
+      background-color: #ffc107;
+      color: black;
+    }
+  }
+
+
+
+
+  .button-container {
+    display: flex;
+    justify-content: center;  /* Centers the buttons horizontally */
+    align-items: center;      /* Centers the buttons vertically */
+    gap: 10px;                /* Adds space between the buttons */
+    margin-top: 20px;         /* Adds some space from the top of the page */
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-allocate {
+    background-color: #4CAF50; /* Green */
+    color: white;
+  
+    &:hover {
+      background-color: #45a049; /* Darker Green on Hover */
+      transform: scale(1.05);
+    }
+  
+    &:active {
+      background-color: #388e3c; /* Even Darker Green on Click */
+      transform: scale(0.98);
+    }
+  }
+  
+  .btn-unallocate {
+    background-color: #f44336; /* Red */
+    color: white;
+  
+    &:hover {
+      background-color: #e53935; /* Darker Red on Hover */
+      transform: scale(1.05);
+    }
+  
+    &:active {
+      background-color: #d32f2f; /* Even Darker Red on Click */
+      transform: scale(0.98);
+    }
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .button-container {
+      flex-direction: column;  /* Stacks the buttons vertically on smaller screens */
+      gap: 15px;               /* Adds more space between the buttons on smaller screens */
+    }
+  
+    .btn {
+      width: 50%;             /* Buttons take up full width on small screens */
+      font-size: 16px;         /* Adjusts font size for readability */
+      padding: 12px 0;         /* Adjust padding for better touch experience */
+    }
+  }
+  
+
+
+
+
+/* Styling for the dropdown container */
+.dropdown-container {
+    margin-top: 30px;
+    margin-left: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-family: Arial, sans-serif;
+  
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+  
+    select {
+      width: 100%; /* Adjust to full width for mobile */
+      max-width: 200px; /* Limit max width for desktop */
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      outline: none;
+  
+      &:focus {
+        border-color: #007bff;
+      }
+    }
+  
+    @media (max-width: 768px) {
+      margin-left: 0; /* Remove left margin on smaller screens */
+      align-items: center; /* Center align dropdown */
+    }
+  }
+
+
+
+
+  .card {
+    background-color: #f8f9fa; // Light gray background
+    border: 1px solid #dee2e6; // Subtle border
+    border-radius: 0.5rem; // Rounded corners
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Soft shadow
+    transition: transform 0.2s, box-shadow 0.2s;
+  
+    &:hover {
+      transform: translateY(-4px); // Lift effect on hover
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); // Stronger shadow on hover
+    }
+  
+    .card-body {
+      padding: 1.5rem; // Increased padding for better spacing
+    }
+  
+    .card-title {
+      font-size: 1.5rem; // Slightly larger title font
+      font-weight: 700; // Bold font for title
+      color: #343a40; // Dark gray color
+      margin-bottom: 1rem; // Spacing below the title
+    }
+  
+    .card-text {
+      font-size: 1.2rem; // Larger font for text
+      color: #495057; // Subtle gray for text
+      strong {
+        color: #007bff; // Highlight the count in blue
+      }
+    }
+  }
+  

@@ -4,6 +4,7 @@ import { DashboradComponent } from './dashborad/dashborad.component';
 import { TeamsComponent } from './teams/teams.component';
 import { HistoryComponent } from './history/history.component';
 import { LoginComponent } from './login/login.component';
+import { TeamleaderComponent } from './teamleader/teamleader.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },  // Login page
@@ -14,6 +15,7 @@ export const routes: Routes = [
             {path:'' , redirectTo:'dashboard' ,pathMatch:'full'},
             {path:'dashboard' ,component:DashboradComponent},
             {path: 'teams', component: TeamsComponent},
-            {path: 'history', component: HistoryComponent}
+            {path: 'history', component: HistoryComponent},
+            {path: 'team' ,component:TeamleaderComponent}
         ]
     }];

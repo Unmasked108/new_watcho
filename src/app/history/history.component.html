@@ -40,15 +40,6 @@
   </mat-form-field>
   
   
-      
-      <!-- Verify Orders Filter -->
-    <mat-form-field class="example-full-width">
-      <mat-select placeholder="Verify Orders" [(ngModel)]="selectedVerifyStatus" (selectionChange)="onFilterChange()">
-        <mat-option [value]="'NoVerify'">Don't Verify</mat-option>
-        <mat-option [value]="'Verify'">Verify</mat-option>
-      </mat-select>
-    </mat-form-field>
-  
       <button mat-raised-button color="primary" class="search-btn" (click)="searchByDate()" [disabled]="loading">Search</button>
     </div>
   </mat-card>
@@ -83,7 +74,7 @@
     <!-- <h3 class="export-heading">Export Today's Data</h3> -->
     <button mat-raised-button color="accent" class="export-btn" (click)="downloadData()">Download</button>
   </div>
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  <mat-paginator [pageSizeOptions]="[10, 20]" showFirstLastButtons></mat-paginator>
   
   
   <mat-table [dataSource]="dataSource" class="custom-table">
@@ -94,7 +85,9 @@
     <!-- Order ID Column -->
     <ng-container matColumnDef="orderId">
       <mat-header-cell *matHeaderCellDef>Order ID</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.orderId }}</mat-cell>
+      <mat-cell *matCellDef="let element"><a (click)="openOrderDetails(element)" style="cursor: pointer; color: #007BFF; text-decoration: underline; font-weight: bold;">
+        {{ element.orderId }}
+      </a></mat-cell>
     </ng-container>
   
     <ng-container matColumnDef="coupon">
@@ -151,6 +144,48 @@
     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
   </mat-table>
   
+  <ng-template #orderDetailsDialog let-data>
+    <h2 mat-dialog-title>Order Details</h2>
+    <mat-dialog-content>
+      <div class="order-details-container">
+        <div class="detail-row">
+          <span class="detail-label">Order ID:</span>
+          <span class="detail-value">{{ data.orderId }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Link:</span>
+          <span class="detail-value link-value" title="{{ data.orderLink }}">
+            <a href="{{ data.orderLink }}" target="_blank">{{ data.orderLink }}</a>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Coupon:</span>
+          <span class="detail-value">{{ data.coupon }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Order Type:</span>
+          <span class="detail-value">{{ data.orderType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment Status:</span>
+          <span class="detail-value">{{ data.paymentStatus }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Team Name:</span>
+          <span class="detail-value">{{ data.allocatedTeamName || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Profit:</span>
+          <span class="detail-value">₹{{ data.profit || 0 }}</span>
+        </div>
+      </div>
+    </mat-dialog-content>
+    
+    
+    <mat-dialog-actions align="center">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  </ng-template>
   
   
   <div  *ngIf="loading" class="loader-container">

@@ -9,6 +9,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders ,HttpParams} from '@angular/common/http';
 import moment from 'moment';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { finalize } from 'rxjs/operators';
 // import * as FileSaver from 'file-saver';
 
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -29,6 +31,7 @@ import { MatPaginator } from '@angular/material/paginator';
     MatSelect,
     MatOption,
     MatPaginator,
+    MatDialogModule,
     // HttpClientModule, // HttpClientModule only needed in app.module.ts, can be removed here
   ],
   templateUrl: './history.component.html',
@@ -66,10 +69,11 @@ export class HistoryComponent implements OnInit {
   data: any[] = [];
   dataSource = new MatTableDataSource<any>();
   loading: boolean = false;
-  private readonly apiUrl = ' http://localhost:5000/api/results';
+  private readonly apiUrl = ' http://localhost:5000/api/orders';
   private teamsApiUrl = 'http://localhost:5000/api/teams'
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private dialog: MatDialog ) {}
+  @ViewChild('orderDetailsDialog') orderDetailsDialog: any;
 
   ngOnInit(): void {
     this.fetchTeams();
@@ -94,44 +98,49 @@ export class HistoryComponent implements OnInit {
   }
   onFilterChange(): void {
     this.getOrdersCount();
-    this.loadAllResults(); // Re-fetch results based on current filter values
+    this.loadAllResults();
+    
+     // Re-fetch results based on current filter values
   }
 
-  getOrdersCount(): void {
-    this.loading=true
-    // Format the selected date or use today's date if not selected
-    const formattedDate = this.selectedDate
-      ? moment(this.selectedDate).format('YYYY-MM-DD')
-      : new Date().toISOString().split('T')[0];
   
-    // Build query params dynamically
-    let params = new HttpParams().set('date', formattedDate);
-    if (this.selectedTeamName) {
-      params = params.set('teamName', this.selectedTeamName); // Add teamName to params if available
-    }
+
+getOrdersCount(): void {
+  this.loading = true;
   
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`, // Include token from localStorage
-    });
-  
-    // Make the API call
-    this.http
-      .get<{ totalOrders: number; totalAllocatedLeads: number }>(
-        'http://localhost:5000/api/orders/count',
-        { params, headers }
-      )
-      .subscribe(
-        (response) => {
-          this.loading=false
-          this.totalOrders = response.totalOrders;
-          this.totalAllocatedOrders = response.totalAllocatedLeads; // Update totalAllocatedLeads with response
-        },
-        (error) => {
-          this.loading=false
-          console.error('Error fetching order count:', error);
-        }
-      );
+  const formattedDate = this.selectedDate
+    ? moment(this.selectedDate).format('YYYY-MM-DD')
+    : new Date().toISOString().split('T')[0];
+
+  let params = new HttpParams().set('date', formattedDate);
+  if (this.selectedTeamName) {
+    params = params.set('teamName', this.selectedTeamName);
   }
+
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  });
+
+  this.http
+    .get<{ totalOrders: number; totalAllocatedLeads: number }>(
+      'http://localhost:5000/api/orders/count',
+      { params, headers }
+    )
+    .pipe(
+      finalize(() => {
+        this.loadAllResults(); // Guaranteed to run after request completes
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        this.totalOrders = response.totalOrders;
+        this.totalAllocatedOrders = response.totalAllocatedLeads;
+      },
+      error: (error) => {
+        console.error('Error fetching order count:', error);
+      }
+    });
+}
 
   loadAllResults(): void {
     this.loading = true;
@@ -157,14 +166,14 @@ export class HistoryComponent implements OnInit {
     this.http.get<any[]>(`${this.apiUrl}?${queryString}`, { headers }).subscribe({
       next: (response) => {
         console.log('Response from API:', response);
-         // Debugging log
          this.data = response.map((item) => this.formatResult(item));
-   // Assign data to dataSource instead of filteredData
-   this.dataSource.data = this.data;
-   this.dataSource.paginator = this.paginator; // Set paginator         this.paidOrders = this.data.filter((item) => item.paymentStatus==='Paid').length;
-   this.paidOrders = this.data.filter((item) => item.paymentStatus === 'Paid').length;
-   this.unpaidOrders = this.data.filter((item) => item.paymentStatus === 'Unpaid').length;
-            this.loading = false; // Stop spinner after data is loaded
+         this.dataSource.data = this.data;
+         this.dataSource.paginator = this.paginator;
+
+         this.paidOrders = this.data.filter((item) => item.paymentStatus === 'Paid').length;
+         this.unpaidOrders = this.data.filter((item) => item.paymentStatus === 'Unpaid').length;
+         console.log('UNPaid Orders:', this.unpaidOrders);
+         this.loading = false; // Stop spinner after data is loaded
          this.cdr.detectChanges();
         // Handle the response data
         this.loading = false; // Stop spinner after data is loaded
@@ -176,7 +185,12 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  
+  openOrderDetails(data: any): void {
+    this.dialog.open(this.orderDetailsDialog, {
+      width: '400px',
+      data,
+    });
+  }
 
   /**
    * Format API result into table-compatible data
@@ -185,13 +199,18 @@ export class HistoryComponent implements OnInit {
     return {
       orderId: item.orderId || 'N/A',
       coupon:item.coupon || 'N/A',
-      orderLink:item.orderLink || 'N/A' , // Correct mapping
+      orderLink:item.link || 'N/A' , // Correct mapping
       orderType: item.orderType || 0, // Include orderType
 
-      allocatedTeamName: item.teamId?.teamName || 'N/A', // Access nested `teamName`
+      allocatedTeamName: item.teamName || 'N/A', // Access nested `teamName`
       verification: item.completionStatus || 'N/A',
       allocatedMember: item.memberName || 'N/A',
-      paymentStatus: item.paymentStatus || 'N/A',
+      paymentStatus: 
+      item.status === 'Completed' 
+        ? 'Paid' 
+        : (item.status === 'Allocated' || item.status === 'Assign') 
+          ? 'Unpaid' 
+          : 'N/A',
       profit: item.profitBehindOrder || 0,
       memberProfit: item.membersProfit || 0,
     };
@@ -245,10 +264,9 @@ export class HistoryComponent implements OnInit {
    * Search by date
    */
   searchByDate(): void {
-    // this.loading = true
-    this.loadAllResults();
     this.getOrdersCount();
-    
+    this.loadAllResults();
+     
   }
   
 }

@@ -74,7 +74,7 @@ export class LoginComponent {
       const password = form.value.password;
   
       this.loading = true; // Show loading spinner
-      this.http.post('https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/login', { email, password }).subscribe(
+      this.http.post('http://localhost:5000/login', { email, password }).subscribe(
         (response: any) => {
           this.loading = false; // Hide loading spinner
   
@@ -149,7 +149,7 @@ export class LoginComponent {
     
     this.http
       .get<{ authToken: string }>(
-        `https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/sendotp?mobile=${this.enteredMobile}&email=${this.email}`
+        `http://localhost:5000/sendotp?mobile=${this.enteredMobile}&email=${this.email}`
       )
       .subscribe(
         (response) => {
@@ -189,7 +189,7 @@ export class LoginComponent {
         this.loading = true; // Show loading spinner
 
         // Simulate sending OTP
-        this.http.get<{ authToken: string }>(`https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/sendotp?mobile=${mobile}&email=${email}&isSignup=true`).subscribe(
+        this.http.get<{ authToken: string }>(`http://localhost:5000/sendotp?mobile=${mobile}&email=${email}&isSignup=true`).subscribe(
           (response) => {
             console.log(response)
             this.loading = false; // Hide spinner
@@ -224,7 +224,7 @@ verifyOtp() {
     this.loading = true; // Show loading spinner
 
     // Verify OTP API call
-    this.http.post('https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/verify', { otp: this.otp, mobile: this.userData.mobile, authToken: this.authToken }).subscribe(
+    this.http.post('http://localhost:5000/verify', { otp: this.otp, mobile: this.userData.mobile, authToken: this.authToken }).subscribe(
       (response: any) => {
         if (response.resultStatus === 'SUCCESS') {
           if (this.isLoginFlow) {
@@ -233,7 +233,7 @@ verifyOtp() {
             this.showOtpCard = false;
 
             // Now fetch the user data and store it
-            this.http.post('https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/login', { email: this.userData.email,password:this.userData.password}).subscribe(
+            this.http.post('http://localhost:5000/login', { email: this.userData.email,password:this.userData.password}).subscribe(
               (loginResponse: any) => {
                 const { token, id: userId, role, username } = loginResponse;
 
@@ -255,7 +255,7 @@ verifyOtp() {
             );
           } else {
             // If it's signup, proceed with registration
-            this.http.post('https://asia-south1-ads-ai-101.cloudfunctions.net/watcho1_api/register', this.userData).subscribe(
+            this.http.post('http://localhost:5000/register', this.userData).subscribe(
               () => {
                 this.loading = false;
                 this.showOtpCard = false;

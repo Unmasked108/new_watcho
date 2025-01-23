@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient ,HttpHeaders} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,14 +34,18 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
      MatNativeDateModule,
      MatFormFieldModule,
      ReactiveFormsModule,
-     MatCheckboxModule],
+     MatCheckboxModule,
+    ],
      
   templateUrl: './dashborad.component.html',
   styleUrl: './dashborad.component.scss'
 })
 export class DashboradComponent implements OnInit{
-  displayedColumns: string[] = ['teams', 'orders', 'allocated', 'status'];
-  dataSource: any[] = [];
+  displayedColumns: string[] = ['teamId','teams', 'orders', 'allocated', 'status'];
+  // dataSource: any[] = [];
+  dataSource = new MatTableDataSource<any>([]);
+  selectedOrderType: string = '149'; // Default value for order type dropdown
+
   isLoading = true;
   taskOption: string | null = null;
   showFileInput = false;
@@ -125,18 +129,121 @@ localStorage.setItem('customEndDate', this.customEndDate.toISOString());
     this.fetchData();
   }
 
-  fetchData() {
-    this.http.get('http://localhost:5000/api/teams').subscribe({
-      next: (data: any) => {
-        this.dataSource = data;
-        this.isLoading = false;
+  fetchData(): void {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    });
+
+    this.http.get<any[]>('http://localhost:5000/api/teams', { headers }).subscribe({
+      next: (teams) => {
+        // Transform data to only include teamId and teamName
+        const formattedData = teams.map((team) => ({
+          teamId: team.teamId, // Use the frontend-defined teamId
+          teams: team.teamName, // Assuming `teamName` is the team's name
+        }));
+
+        this.dataSource.data = formattedData;
+        console.log('Teams Data:', formattedData);
       },
-      error: (err) => {
-        console.error('Failed to fetch data', err);
-        this.isLoading = false;
+      error: (error) => {
+        console.error('Error fetching teams:', error);
       },
     });
   }
+  allocateOrders(): void {
+    const token = localStorage.getItem('token'); // Get JWT token
+    if (!token) {
+      console.error('No token found in local storage.');
+      alert('Authentication token is missing. Please log in again.');
+      return;
+    }
+  
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    // Get current date in YYYY-MM-DD format (default for new orders)
+    const currentDate = new Date().toISOString().split('T')[0];
+  
+    // Prepare allocation data for Admin
+    const allocationRequests = {
+      orders: this.dataSource.data.map((row) => ({
+        date: currentDate, // Default date
+        teamId: row.teamId,
+        orderType: this.selectedOrderType,
+        ordersCount: row.orders || 0, // Ensure valid order count
+      })),
+    };
+  
+    console.log('Sending Allocation Request:', JSON.stringify(allocationRequests, null, 2));
+  
+    // Send POST request
+    this.http
+      .post('http://localhost:5000/api/allocate-orders', allocationRequests, { headers })
+      .subscribe({
+        next: (response) => {
+          console.log('Orders allocated successfully:', response);
+          alert('Orders have been allocated successfully!');
+          this.fetchData(); // Refresh data after allocation
+        },
+        error: (error) => {
+          console.error('Error allocating orders:', error);
+          alert('Failed to allocate orders. Please try again.');
+        },
+      });
+  }
+  
+  unallocateOrders(): void {
+    const token = localStorage.getItem('token'); // Get JWT token
+    if (!token) {
+      console.error('No token found in local storage.');
+      alert('Authentication token is missing. Please log in again.');
+      return;
+    }
+  
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    // Get current date in YYYY-MM-DD format
+    const currentDate = new Date().toISOString().split('T')[0];
+  
+    // Ensure selectedTeamId is set
+    // if (!this.selectedTeamId) {
+    //   console.error('No team selected for unallocation.');
+    //   alert('Please select a team before unallocating orders.');
+    //   return;
+    // }
+  
+    // Prepare unallocation data for Admin with teamId included
+    const unallocationRequests = {
+      orders: this.dataSource.data.map((row) => ({
+        date: currentDate, // Default date
+        teamId: row.teamId,
+        orderType: this.selectedOrderType,
+        ordersCount: row.orders || 0, // Ensure valid order count
+      })),
+    };
+  
+    console.log('Sending Unallocation Request:', JSON.stringify(unallocationRequests, null, 2));
+  
+    // Send POST request
+    this.http
+      .post('http://localhost:5000/api/unallocate-orders', unallocationRequests, { headers })
+      .subscribe({
+        next: (response) => {
+          console.log('Orders unallocated successfully:', response);
+          alert('Orders have been unallocated successfully!');
+          this.fetchData(); // Refresh data after unallocation
+        },
+        error: (error) => {
+          console.error('Error unallocating orders:', error);
+          alert('Failed to unallocate orders. Please try again.');
+        },
+      });
+  }
+  
+
   generateToken() {
     console.log('Token generation logic not implemented yet.');
   }
@@ -195,7 +302,7 @@ reader.onload = () => {
   });
 
   // Send data to the backend
-  this.http.post('  https://asia-south1-ads-ai-101.cloudfunctions.net/watcho2_api/api/orders ' //  https://asia-south1-ads-ai-101.cloudfunctions.net/watcho2_api/api/orders
+  this.http.post('  http://localhost:5000/api/orders ' 
     , parsedData, { headers: httpHeaders }).subscribe(
     (response) => {
       this.loading = false

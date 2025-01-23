@@ -76,53 +76,68 @@
 
 
 
-
-
+<div class="dropdown-container">
+  <label for="orderType">Order Type</label>
+  <select id="orderType" [(ngModel)]="selectedOrderType">
+    <option value="149">149</option>
+    <option value="299">299</option>
+  </select>
+</div>
 
 
 <div class="table-container">
-    <mat-table [dataSource]="dataSource" class="mat-elevation-z8 custom-table">
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z8 custom-table">
+    <!-- Team ID Column -->
+    <ng-container matColumnDef="teamId">
+      <mat-header-cell *matHeaderCellDef> Team ID </mat-header-cell>
+      <mat-cell *matCellDef="let team"> {{ team.teamId }} </mat-cell>
+    </ng-container>
+
+    <!-- Teams Column -->
+    <ng-container matColumnDef="teams">
+      <mat-header-cell *matHeaderCellDef> Teams </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{ element.teams }} </mat-cell>
+    </ng-container>
+
+    <!-- Orders Column with input -->
+    <ng-container matColumnDef="orders">
+      <mat-header-cell *matHeaderCellDef> Orders </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <input matInput [(ngModel)]="element.orders" placeholder="Enter Orders" />
+      </mat-cell>
+    </ng-container>
+
+    <!-- Allocated Column -->
+    <ng-container matColumnDef="allocated">
+      <mat-header-cell *matHeaderCellDef> Allocated </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{ element.allocated }} </mat-cell>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <span class="status-chip" [ngClass]="{
+          'completed': element.status === 'Completed',
+          'pending': element.status === 'Pending'
+        }">
+          {{ element.status }}
+        </span>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Header Row -->
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <!-- Data Row -->
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>
+
   
-      <!-- Teams Column -->
-      <ng-container matColumnDef="teams">
-        <mat-header-cell *matHeaderCellDef> Teams </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{ element.teams }} </mat-cell>
-      </ng-container>
-  
-      <!-- Orders Column -->
-      <ng-container matColumnDef="orders">
-        <mat-header-cell *matHeaderCellDef> Orders </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{ element.orders }} </mat-cell>
-      </ng-container>
-  
-      <!-- Allocated Column -->
-      <ng-container matColumnDef="allocated">
-        <mat-header-cell *matHeaderCellDef> Allocated </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{ element.allocated }} </mat-cell>
-      </ng-container>
-  
-      <!-- Status Column with status-chip -->
-      <ng-container matColumnDef="status">
-        <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-        <mat-cell *matCellDef="let element">
-          <span class="status-chip" [ngClass]="{
-            'completed': element.status === 'Completed',
-            'pending': element.status === 'Pending'
-          }">
-            {{ element.status }}
-          </span>
-        </mat-cell>
-      </ng-container>
-  
-      <!-- Header Row -->
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  
-      <!-- Data Row -->
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
-  
-    <div class="loading-spinner" *ngIf="isLoading">
-      <mat-spinner></mat-spinner>
-    </div>
+  <div class="button-container">
+   
+    <button class="btn btn-allocate" (click)="allocateOrders()">Allocate</button>
+
+    <button class="btn btn-unallocate" (click)="unallocateOrders()">Unallocate</button>
   </div>
   

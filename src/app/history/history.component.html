@@ -117,10 +117,7 @@
       <mat-header-cell *matHeaderCellDef>Allocated Team Name</mat-header-cell>
       <mat-cell *matCellDef="let element">{{ element.allocatedTeamName }}</mat-cell>
     </ng-container>
-    <ng-container matColumnDef="verification">
-      <mat-header-cell *matHeaderCellDef>Verification</mat-header-cell>
-      <mat-cell *matCellDef="let element">{{ element.verification }}</mat-cell>
-    </ng-container>
+   
   
     <!-- Allocated Member Column -->
     <ng-container matColumnDef="allocatedMember">
@@ -139,6 +136,11 @@
         <div><strong>Member Profit:</strong> <i class="bi bi-currency-rupee"></i>{{ element.memberProfit }}</div>
       </div>
     </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="verification">
+    <mat-header-cell *matHeaderCellDef>Verification</mat-header-cell>
+    <mat-cell *matCellDef="let element">{{ element.verification }}</mat-cell>
   </ng-container>
   
   

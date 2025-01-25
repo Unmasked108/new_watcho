@@ -42,7 +42,7 @@ import { MatPaginator } from '@angular/material/paginator';
 })
 export class HistoryComponent implements OnInit {
   selectedDate: Date = new Date(); // Default to the current date
-  role: string = ''; // Stores user role
+  role:any // Stores user role
 
   selectedPaidStatus: string | null = null;
   selectedTeamName: string | null = null;
@@ -73,7 +73,7 @@ export class HistoryComponent implements OnInit {
   data: any[] = [];
   dataSource = new MatTableDataSource<any>();
   loading: boolean = false;
-  private readonly apiUrl = ' http://localhost:5000/api/result';
+  private readonly apiUrl = ' http://localhost:5000/api/orders';
   private teamsApiUrl = 'http://localhost:5000/api/teams'
   teamId: any;
   userId: any;
@@ -130,8 +130,7 @@ export class HistoryComponent implements OnInit {
   
 
 getOrdersCount(): void {
-   this.loading = true;
-  
+  this.loading = true;
   const formattedDate = this.selectedDate
     ? moment(this.selectedDate).format('YYYY-MM-DD')
     : new Date().toISOString().split('T')[0];
@@ -162,18 +161,20 @@ getOrdersCount(): void {
       next: (response) => {
         this.totalOrders = response.totalOrders;
         this.totalAllocatedOrders = response.totalAllocatedLeads;
+       
       },
       error: (error) => {
+        
         console.error('Error fetching order count:', error);
       }
     });
 }
 loadAllResults(): void {
   this.loading = true;
-
   const formattedDate = this.selectedDate
-    ? moment(this.selectedDate).format('YYYY-MM-DD')
-    : null;
+      ? moment(this.selectedDate).format('YYYY-MM-DD')
+      : null;
+
 
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`, // Include token from localStorage
@@ -197,7 +198,7 @@ loadAllResults(): void {
         console.log("Response from API:", response);
 
         // Check if the response has the correct properties
-        this.data = response.orders.map((item: any) => this.formatResult(item));
+        this.data = response.map((item: any) => this.formatResult(item));
         this.dataSource.data = this.data;
         this.dataSource.paginator = this.paginator;
 
@@ -231,12 +232,11 @@ loadAllResults(): void {
     return {
       orderId: item.orderId || 'N/A',
       coupon: item.coupon || 'N/A',
-      orderLink: item.orderLink || 'N/A',
+      orderLink: item.link || 'N/A',
       orderType: item.orderType || 0,
 
-      allocatedTeamName: item.allocatedTeamName || 'N/A',
-      allocatedMember: item.allocatedMember || 'Not Allocated',
-      verification: item.verification || 'N/A',
+      allocatedTeamName: item.teamName || 'N/A',
+      allocatedMember: item.memberName || 'Not Allocated',
 
       // Map payment status
       paymentStatus: item.paymentStatus || 'N/A',

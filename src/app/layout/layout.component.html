@@ -15,11 +15,12 @@
         <li class="nav-item" *ngIf="role === 'Admin'">
           <a class="nav-link" routerLink="/layout/teams" routerLinkActive="active">Teams</a>
         </li>
-        <li class="nav-item" *ngIf="role === 'Admin' ">
-          <a class="nav-link" routerLink="/layout/history" routerLinkActive="active">Orders</a>
-        </li>
+       
         <li class="nav-item" *ngIf="role === 'TeamLeader'">
           <a class="nav-link" routerLink="/layout/team" routerLinkActive="active">Team Management</a>
+        </li>
+        <li class="nav-item" *ngIf="role === 'Admin' || role === 'TeamLeader'">
+          <a class="nav-link" routerLink="/layout/history" routerLinkActive="active">Orders</a>
         </li>
       </ul>
 

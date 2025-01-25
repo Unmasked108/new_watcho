@@ -76,13 +76,67 @@
 
 
 
+<div class="container mt-5">
+  <div class="row justify-content-center g-4 cards-container">
+    <!-- Total Orders Card -->
+    <div class="col-6 d-flex justify-content-center">
+      <div class="card leads-card allocated shadow-sm">
+        <div class="circle">
+          <div class="circle-title">Total Orders</div>
+        </div>
+        <div class="card-body text-center">
+          <div class="circle-content">{{ totalOrders }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Leads Allocated Card -->
+    <div class="col-6 d-flex justify-content-center">
+      <div class="card leads-card allocated shadow-sm">
+        <div class="circle">
+          <div class="circle-title">Total Leads Allocated</div>
+        </div>
+        <div class="card-body text-center">
+          <div class="circle-content">{{ totalLeadsAllocated }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Leads Completed Card -->
+    <div class="col-6 d-flex justify-content-center">
+      <div class="card leads-card completed shadow-sm">
+        <div class="circle">
+          <div class="circle-title">Total Leads Completed</div>
+        </div>
+        <div class="card-body text-center">
+          <div class="circle-content">{{ totalLeadsCompleted }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="order-type-container">
+  <div class="card">
+    <h3>Order Type: 149</h3>
+    <p>Total Count: {{ orderType149Count }}</p>
+  </div>
+  <div class="card">
+    <h3>Order Type: 299</h3>
+    <p>Total Count: {{ orderType299Count }}</p>
+  </div>
+</div>
+
+
+
 <div class="dropdown-container">
   <label for="orderType">Order Type</label>
-  <select id="orderType" [(ngModel)]="selectedOrderType">
+  <select id="orderType" [(ngModel)]="selectedOrderType" (change)="onOrderTypeChange()">
     <option value="149">149</option>
     <option value="299">299</option>
   </select>
 </div>
+
 
 
 <div class="table-container">

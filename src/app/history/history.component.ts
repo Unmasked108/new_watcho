@@ -11,6 +11,8 @@ import { HttpClient, HttpHeaders ,HttpParams} from '@angular/common/http';
 import moment from 'moment';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs/operators';
+
+
 // import * as FileSaver from 'file-saver';
 
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -40,10 +42,11 @@ import { MatPaginator } from '@angular/material/paginator';
 })
 export class HistoryComponent implements OnInit {
   selectedDate: Date = new Date(); // Default to the current date
- 
+  role: string | null = null; 
   selectedPaidStatus: string | null = null;
   selectedTeamName: string | null = null;
-  teamNames: any[] = [];// Optional member filter
+  teamNames: any[] = [];
+  teamName: any;
   selectedVerifyStatus: string | null=null;
 
   totalOrders = 0;
@@ -71,12 +74,17 @@ export class HistoryComponent implements OnInit {
   loading: boolean = false;
   private readonly apiUrl = ' http://localhost:5000/api/orders';
   private teamsApiUrl = 'http://localhost:5000/api/teams'
+  teamId: any;
+  userId: any;
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private dialog: MatDialog ) {}
   @ViewChild('orderDetailsDialog') orderDetailsDialog: any;
 
   ngOnInit(): void {
     this.fetchTeams();
+    this.role = localStorage.getItem('role'); 
+    this.userId = localStorage.getItem('userId');
+
     // this.loadAllResults(); // Load all results initially
   }
   fetchTeams(): void {
@@ -86,10 +94,25 @@ export class HistoryComponent implements OnInit {
 
     this.http.get<any[]>(this.teamsApiUrl, { headers }).subscribe({
       next: (response) => {
-        this.teamNames = response.map(team => ({
-          id: team._id,
-          name: team.teamName
-        }));
+        if (this.role === 'TeamLeader') {
+          // Ensure teamLeader._id is a string before comparison
+          const teamLeaderTeam = response.find(team => team.teamLeader?._id?.toString() === this.userId);
+          if (teamLeaderTeam) {
+            this.teamId = teamLeaderTeam.teamId; 
+            this.teamName =teamLeaderTeam.teamName// Assign teamId for TeamLeader
+           
+            
+          } else {
+            console.warn('No team found for this TeamLeader.');
+          }
+        } else {
+          // For Admin or other roles
+          this.teamNames = response.map(team => ({
+            id: team._id,
+            teamId: team.teamId,
+            name: team.teamName,
+          }));
+        }
       },
       error: (error) => {
         console.error('Error fetching teams:', error);
@@ -116,6 +139,10 @@ getOrdersCount(): void {
   if (this.selectedTeamName) {
     params = params.set('teamName', this.selectedTeamName);
   }
+  if (this.role === 'TeamLeader' ) {
+    params = params.set('teamName', this.teamName);
+  }
+
 
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -159,7 +186,9 @@ getOrdersCount(): void {
     if (this.selectedPaidStatus) queryParams.paidStatus = this.selectedPaidStatus;
     if (this.selectedTeamName) queryParams.teamName = this.selectedTeamName;
     if (this.selectedVerifyStatus) queryParams.verifyStatus = this.selectedVerifyStatus; // Add Verify Orders filter
-
+    if (this.role === 'TeamLeader') {
+      queryParams.teamId = this.teamId;
+    }
     const queryString = new URLSearchParams(queryParams).toString();
     console.log(queryString)
 

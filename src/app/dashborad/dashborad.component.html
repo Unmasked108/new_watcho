@@ -168,17 +168,13 @@
     </ng-container>
 
     <!-- Status Column -->
-    <ng-container matColumnDef="status">
-      <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-      <mat-cell *matCellDef="let element">
-        <span class="status-chip" [ngClass]="{
-          'completed': element.status === 'Completed',
-          'pending': element.status === 'Pending'
-        }">
-          {{ element.status }}
-        </span>
-      </mat-cell>
-    </ng-container>
+<!-- Completion Time Column -->
+<ng-container matColumnDef="completionTime">
+  <mat-header-cell *matHeaderCellDef> Completion Time </mat-header-cell>
+  <mat-cell *matCellDef="let element">
+    {{ getTimeAgo(element.completionDate) }}
+  </mat-cell>
+</ng-container>
 
     <!-- Header Row -->
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
@@ -193,5 +189,24 @@
     <button class="btn btn-allocate" (click)="allocateOrders()">Allocate</button>
 
     <button class="btn btn-unallocate" (click)="unallocateOrders()">Unallocate</button>
+  </div>
+  
+
+  <div *ngIf="showCard" class="overlay-background">
+    <div *ngIf="showSuccess" class="alert-card success-card">
+      <div class="alert-content">
+        <h4>Success!</h4>
+        <p>Orders have been allocated successfully!</p>
+        <button class="btn btn-ok" (click)="closeCard()">OK</button>
+      </div>
+    </div>
+  
+    <div *ngIf="showError" class="alert-card error-card">
+      <div class="alert-content">
+        <h4>Error!</h4>
+        <p>Failed to allocate orders. Please try again.</p>
+        <button class="btn btn-ok" (click)="closeCard()">OK</button>
+      </div>
+    </div>
   </div>
   

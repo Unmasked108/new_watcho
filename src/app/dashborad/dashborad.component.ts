@@ -50,6 +50,7 @@ export class DashboradComponent implements OnInit{
   // dataSource: any[] = [];
   dataSource = new MatTableDataSource<any>([]);
   selectedOrderType: string = '149'; // Default value for order type dropdown
+  totalOrders: number = 0;
 
   isLoading = true;
   taskOption: string | null = null;
@@ -61,7 +62,8 @@ export class DashboradComponent implements OnInit{
   username: string = ''; 
   initials: string = ''; 
   loading: boolean = false;
-
+orderType149Count : number =0;
+orderType299Count : number =0;
   totalLeadsAllocated: number = 0; // Total allocated leads
   totalLeadsCompleted: number = 0; // Total completed leads
 
@@ -123,42 +125,69 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
   * Apply date filter based on the selected range
   */
  applyDateFilter(): void {
-   let startDate: Date | null = null;
-   let endDate: Date | null = null;
- 
-   if (this.selectedDateRange === 'today') {
-     const today = new Date();
-     startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
-   } else if (this.selectedDateRange === 'yesterday') {
-     const yesterday = new Date();
-     yesterday.setDate(yesterday.getDate() - 1);
- 
-     startDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate())); // Start of yesterday
-     endDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate(), 23, 59, 59, 999)); // End of yesterday
-   } else if (this.selectedDateRange === 'thisWeek') {
-     const today = new Date();
-     const startOfWeek = new Date(today);
-     startOfWeek.setDate(today.getDate() - today.getDay());
-     startDate = new Date(Date.UTC(startOfWeek.getUTCFullYear(), startOfWeek.getUTCMonth(), startOfWeek.getUTCDate()));
-     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
-   } else if (this.selectedDateRange === 'thisMonth') {
-     const today = new Date();
-     startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
-     endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
-   } else if (this.selectedDateRange === 'custom') {
-     if (!this.customStartDate || !this.customEndDate) {
-       console.warn('Incomplete custom date range!');
-       return;
-     }
-     startDate = new Date(this.customStartDate);
-     endDate = new Date(this.customEndDate);
-     endDate.setHours(23, 59, 59, 999); // End of day for custom range
-   }
- 
-   // Now that teams are fetched, call fetchOrdersData
-   this.fetchOrdersData(startDate, endDate);
- }
+  let startDate: Date;
+  let endDate: Date;
+
+  if (this.selectedDateRange === 'today') {
+    const today = new Date();
+    startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+  } else if (this.selectedDateRange === 'yesterday') {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    startDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate()));
+    endDate = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate(), 23, 59, 59, 999));
+  } else if (this.selectedDateRange === 'thisWeek') {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startDate = new Date(Date.UTC(startOfWeek.getUTCFullYear(), startOfWeek.getUTCMonth(), startOfWeek.getUTCDate()));
+    endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+  } else if (this.selectedDateRange === 'thisMonth') {
+    const today = new Date();
+    startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+    endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+  } else if (this.selectedDateRange === 'custom') {
+    if (!this.customStartDate || !this.customEndDate) {
+      console.warn('Incomplete custom date range!');
+      return;
+    }
+    startDate = new Date(this.customStartDate);
+    endDate = new Date(this.customEndDate);
+    endDate.setHours(23, 59, 59, 999);
+  } else {
+    // Fallback to today's date
+    const today = new Date();
+    startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59, 999));
+  }
+
+  this.selectedStartDate = startDate;
+  this.selectedEndDate = endDate;
+
+  this.fetchOrdersData(startDate, endDate);
+}
+
+
+
+
+ onOrderTypeChange(): void {
+  console.log('Order Type Changed:', this.selectedOrderType);
+
+  // Ensure the previously selected date range is preserved
+  const startDate = this.selectedStartDate;
+  const endDate = this.selectedEndDate;
+
+  if (!startDate || !endDate) {
+    console.error('Invalid date range!');
+    return;
+  }
+
+  // Re-fetch data with the updated order type and preserved date range
+  this.fetchOrdersData(startDate, endDate);
+}
+
+
  
  /**
   * Fetch orders data based on the selected date range
@@ -187,16 +216,22 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
       next: (data) => {
         console.log("Response from Backend:", data);
         if (data.success) {
-          // Ensure teamCounts is of the correct type
+          this.totalOrders = data.totalOrders || 0;
+          this.totalLeadsAllocated = data.totalAllocatedCount || 0;
+          this.totalLeadsCompleted = data.totalCompletedCount || 0;
+          this.orderType149Count = data.orderType149Count || 0; // Add 149 count
+          this.orderType299Count = data.orderType299Count || 0; // Add 299 count
+
           const teamCounts: TeamCount[] = data.teamCounts;
 
           const updatedTeams = this.dataSource.data.map((team) => {
-            // Find the correct team data using the explicit type for 'item'
-            const teamData = teamCounts.find((item: TeamCount) => item.teamId === team.teamId);
+            const teamData = teamCounts.find(
+              (item: TeamCount) => item.teamId === team.teamId
+            );
             if (teamData) {
               const allocated = teamData.allocatedCount;
               const completed = teamData.completionCount;
-              team.allocated = `${completed}/${allocated}`; // Update to show completed/allocated
+              team.allocated = `${completed}/${allocated}`;
               team.status = allocated > 0 ? 'Allocated' : 'Pending';
             }
             return team;
@@ -210,7 +245,6 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
       },
     });
 }
-
 
 
 

@@ -30,13 +30,15 @@
     <mat-select
       [placeholder]="selectedTeamName ? 'Team Name' : 'All Teams'"
       [(value)]="selectedTeamName"
-      (selectionChange)="onFilterChange()">
-      <mat-option [value]="null">All</mat-option>
+      (selectionChange)="onFilterChange()"
+      [disabled]="role !== 'Admin' && !teamNames?.length">
+      <mat-option [value]="null" *ngIf="role === 'Admin'">All</mat-option>
       <mat-option *ngFor="let team of teamNames" [value]="team.name">
         {{ team.name }}
       </mat-option>
     </mat-select>
   </mat-form-field>
+  
   
   
       <button mat-raised-button color="primary" class="search-btn" (click)="searchByDate()" [disabled]="loading">Search</button>

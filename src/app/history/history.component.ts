@@ -130,44 +130,8 @@ export class HistoryComponent implements OnInit {
   
 
 getOrdersCount(): void {
-  // this.loading = true;
+   this.loading = true;
   
-  // const formattedDate = this.selectedDate
-  //   ? moment(this.selectedDate).format('YYYY-MM-DD')
-  //   : new Date().toISOString().split('T')[0];
-
-  // let params = new HttpParams().set('date', formattedDate);
-  // if (this.selectedTeamName) {
-  //   params = params.set('teamName', this.selectedTeamName);
-  // }
-
-  // const headers = new HttpHeaders({
-  //   Authorization: `Bearer ${localStorage.getItem('token')}`,
-  // });
-
-  // this.http
-  //   .get<{ totalOrders: number; totalAllocatedLeads: number }>(
-  //     'http://localhost:5000/api/orders/count',
-  //     { params, headers }
-  //   )
-  //   .pipe(
-  //     finalize(() => {
-  //       this.loadAllResults(); // Guaranteed to run after request completes
-  //     })
-  //   )
-  //   .subscribe({
-  //     next: (response) => {
-  //       this.totalOrders = response.totalOrders;
-  //       this.totalAllocatedOrders = response.totalAllocatedLeads;
-  //     },
-  //     error: (error) => {
-  //       console.error('Error fetching order count:', error);
-  //     }
-  //   });
-}
-loadAllResults(): void {
-  this.loading = true;
-
   const formattedDate = this.selectedDate
     ? moment(this.selectedDate).format('YYYY-MM-DD')
     : new Date().toISOString().split('T')[0];
@@ -176,10 +140,40 @@ loadAllResults(): void {
   if (this.selectedTeamName) {
     params = params.set('teamName', this.selectedTeamName);
   }
-  if (this.role === 'TeamLeader' ) {
-    params = params.set('teamName', this.teamName);
+  if(this.role==='TeamLeader'){
+    params=params.set('teamName',this.teamName);
   }
 
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  });
+
+  this.http
+    .get<{ totalOrders: number; totalAllocatedLeads: number }>(
+      'http://localhost:5000/api/orders/count',
+      { params, headers }
+    )
+    .pipe(
+      finalize(() => {
+        this.loadAllResults(); // Guaranteed to run after request completes
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        this.totalOrders = response.totalOrders;
+        this.totalAllocatedOrders = response.totalAllocatedLeads;
+      },
+      error: (error) => {
+        console.error('Error fetching order count:', error);
+      }
+    });
+}
+loadAllResults(): void {
+  this.loading = true;
+
+  const formattedDate = this.selectedDate
+    ? moment(this.selectedDate).format('YYYY-MM-DD')
+    : null;
 
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`, // Include token from localStorage
@@ -189,6 +183,9 @@ loadAllResults(): void {
   if (formattedDate) queryParams.date = formattedDate;
   if (this.selectedPaidStatus) queryParams.paidStatus = this.selectedPaidStatus;
   if (this.selectedTeamName) queryParams.teamName = this.selectedTeamName;
+  if(this.role==='TeamLeader'){
+    queryParams.teamId = this.teamId;
+  }
 
   const queryString = new URLSearchParams(queryParams).toString();
   console.log("Query String:", queryString);
@@ -205,9 +202,8 @@ loadAllResults(): void {
         this.dataSource.paginator = this.paginator;
 
         // Make sure we are accessing correct properties of the response
-        this.paidOrders = response.paidOrders;
-        this.unpaidOrders = response.unpaidOrders;
-        this.totalOrders = response.totalOrders;
+        this.paidOrders = this.data.filter((item) => item.paymentStatus === 'Paid').length;
+        this.unpaidOrders = this.data.filter((item) => item.paymentStatus === 'Unpaid').length;
 
         this.loading = false;
         this.cdr.detectChanges();
@@ -243,8 +239,12 @@ loadAllResults(): void {
       verification: item.verification || 'N/A',
 
       // Map payment status
-      paymentStatus: item.paymentStatus || 'N/A',
-
+     paymentStatus: 
+      item.status === 'Completed' 
+        ? 'Paid' 
+        : (item.status === 'Allocated' || item.status === 'Assign') 
+          ? 'Unpaid' 
+          : 'N/A',
       // Profit values
       profit: item.profit || 0,
       memberProfit: item.memberProfit || 0,

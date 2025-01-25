@@ -191,7 +191,6 @@
     <button class="btn btn-unallocate" (click)="unallocateOrders()">Unallocate</button>
   </div>
   
-
   <div *ngIf="showCard" class="overlay-background">
     <div *ngIf="showSuccess" class="alert-card success-card">
       <div class="alert-content">
@@ -204,9 +203,16 @@
     <div *ngIf="showError" class="alert-card error-card">
       <div class="alert-content">
         <h4>Error!</h4>
-        <p>Failed to allocate orders. Please try again.</p>
+        <p>{{ errorMessage }}</p> <!-- Dynamically show error message -->
         <button class="btn btn-ok" (click)="closeCard()">OK</button>
       </div>
     </div>
   </div>
   
+  
+
+
+  <div  *ngIf="loading" class="loader-container">
+    <div class="loader"></div>
+    <div class="loader-text">Loading...</div>
+  </div>

@@ -210,6 +210,7 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
     teamIds: JSON.stringify(teamIds),
   };
 
+
   console.log("Request Parameters:", params);
 
   this.http
@@ -303,18 +304,35 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
     };
   
     console.log('Sending Allocation Request:', JSON.stringify(allocationRequests, null, 2));
-  
+
+
+ // Check if all orders have zero count
+ const allZeroOrders = allocationRequests.orders.every(order => order.ordersCount === 0);
+
+ // If all orders have zero count, show validation message
+ if (allZeroOrders) {
+   this.showSuccess = false; // Hide success message
+   this.showError = true; // Show error message
+   this.errorMessage = 'Please put the count to allocate the orders!'; // Custom error message
+   this.showCard = true; // Show the card
+   return; // Prevent the API call
+ }
+    this.loading = true
+
     // Send POST request
     this.http
       .post('http://localhost:5000/api/allocate-orders', allocationRequests, { headers })
       .subscribe({
         next: (response) => {
+          this.loading = false
           console.log('Orders allocated successfully:', response);
           this.showSuccess = true;
           this.showCard = true;
           this.fetchData(); // Refresh data after allocation
         },
         error: (error) => {
+          this.loading = false
+
           console.error('Error allocating orders:', error);
           this.showError = true;
           this.showCard = true;
@@ -336,6 +354,7 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
   
     // Get current date in YYYY-MM-DD format
     const currentDate = new Date().toISOString().split('T')[0];
+
   
     // Ensure selectedTeamId is set
     // if (!this.selectedTeamId) {
@@ -353,7 +372,8 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
         ordersCount: row.orders || 0, // Ensure valid order count
       })),
     };
-  
+    this.loading = true
+
     console.log('Sending Unallocation Request:', JSON.stringify(unallocationRequests, null, 2));
   
     // Send POST request
@@ -361,12 +381,16 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
       .post('http://localhost:5000/api/unallocate-orders', unallocationRequests, { headers })
       .subscribe({
         next: (response) => {
+          this.loading = false
+
          console.log('Orders unallocated successfully:', response);
         this.showSuccess = true;
         this.showCard = true;
         this.fetchData(); // Refresh data after unallocation
       },
       error: (error) => {
+                  this.loading = false
+
         console.error('Error unallocating orders:', error);
         this.showError = true;
         this.showCard = true;
@@ -379,6 +403,7 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
 showCard: boolean = false;
 showSuccess: boolean = false;
 showError: boolean = false;
+errorMessage: string = '';  // Declare errorMessage here
 
 closeCard(): void {
   this.showCard = false;

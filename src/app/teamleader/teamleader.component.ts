@@ -45,6 +45,7 @@ export class TeamleaderComponent implements OnInit{
   displayedColumns: string[] = ['srNo', 'memberName', 'orders', 'allocated', 'completionTime'];
   dataSource = new MatTableDataSource<Member>([]);
   completionDate?: string; // Add this property
+  loading: boolean = false;
 
   allocatedCount: number = 0;
   completedCount: number = 0;
@@ -247,10 +248,14 @@ allocateOrders(): void {
       ordersCount: member.orders
     }));
 
+   // Validation to check if there are no orders to allocate
   if (ordersToAllocate.length === 0) {
-    alert('No orders to allocate');
+    this.showSuccess = true;
+    this.successMessage = 'Please put the count to allocate the orders';
+    this.showCard = true;
     return;
   }
+  this.loading = true
 
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -262,6 +267,7 @@ allocateOrders(): void {
     { headers }
   ).subscribe({
     next: (response: any) => {
+      this.loading= false
       console.log('Orders allocated successfully', response);
       
       // Reset orders column and refresh data
@@ -282,6 +288,7 @@ allocateOrders(): void {
     this.showCard = true;
   },
   error: (error) => {
+    this.loading=false
     console.error('Error allocating orders:', error);
     this.showError = true;
     this.errorMessage = 'Failed to allocate orders. Please try again.';
@@ -306,7 +313,7 @@ unallocateOrders(): void {
     alert('No orders to unallocate');
     return;
   }
-
+this.loading=true
   // Step 2: Create headers for API call
   const headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -319,6 +326,7 @@ unallocateOrders(): void {
     { headers }
   ).subscribe({
     next: (response: any) => {
+      this.loading =false
       console.log('Orders unallocated successfully', response);
       
       // Reset orders column (optional based on your UI/UX)
@@ -339,6 +347,7 @@ unallocateOrders(): void {
     this.showCard = true;
   },
   error: (error) => {
+    this.loading = false
     console.error('Error unallocating orders:', error);
     this.showError = true;
     this.errorMessage = 'Failed to unallocate orders. Please try again.';

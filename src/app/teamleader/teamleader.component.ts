@@ -18,6 +18,7 @@ interface Member {
   teamId: string;
   // Add this line
   memberId?: string; 
+  
 }
 
 @Component({
@@ -39,9 +40,11 @@ export class TeamleaderComponent implements OnInit{
   customStartDate: Date | null = null;
   customEndDate: Date | null = null;
   selectedOrderType: string = '149';
-
-  displayedColumns: string[] = ['srNo', 'memberName', 'orders', 'allocated'];
+  orderType149Count : number =0;
+  orderType299Count : number =0;
+  displayedColumns: string[] = ['srNo', 'memberName', 'orders', 'allocated', 'completionTime'];
   dataSource = new MatTableDataSource<Member>([]);
+  completionDate?: string; // Add this property
 
   allocatedCount: number = 0;
   completedCount: number = 0;
@@ -152,17 +155,23 @@ fetchOrdersData(startDate: Date, endDate: Date, teamId: string): void {
         memberName: string,
         assignedCount: number,
         completedCount: number
-      }>
+        lastCompletionDate: string | null, // Include the completion date
+
+      }>,
+      totalOrders: number,
+      orderType149Count: number,
+      orderType299Count: number,
     }>('http://localhost:5000/api/fetch-orders', { headers, params })
     .subscribe({
       next: (response) => {
         if (response.success) {
           this.allocatedCount = response.teamAllocatedCount || 0;
           this.completedCount = response.teamCompletionCount || 0;
+          this.orderType149Count = response.orderType149Count || 0;
+          this.orderType299Count = response.orderType299Count || 0;
 
           // Update each member's allocated field with their specific counts
           this.dataSource.data = this.dataSource.data.map((member) => {
-            // Add null check for memberCounts
             const memberCount = response.memberCounts 
               ? response.memberCounts.find(m => m.memberName === member.name)
               : null;
@@ -172,6 +181,8 @@ fetchOrdersData(startDate: Date, endDate: Date, teamId: string): void {
               allocated: memberCount 
                 ? `${memberCount.completedCount}/${memberCount.assignedCount}` 
                 : '0/0',
+                completionDate: memberCount?.lastCompletionDate || 'N/A', // Add completion date
+
             };
           });
         }
@@ -182,6 +193,45 @@ fetchOrdersData(startDate: Date, endDate: Date, teamId: string): void {
     });
 }
 
+
+
+getTimeAgo(completionDate: string | null): string {
+  if (!completionDate) return 'Not Completed';
+
+  const completionTime = new Date(completionDate).getTime();
+  const now = new Date().getTime();
+  const diffInMs = now - completionTime;
+  const diffInMinutes = Math.floor(diffInMs / 60000);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInMinutes < 1) return 'Just now';
+  if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+  if (diffInHours < 2) return `1 hr ago`;
+  if (diffInHours < 24) return `${diffInHours} hrs ago`;
+  if (diffInDays === 1) return `Yesterday`;
+  return `${diffInDays} days ago`;
+}
+
+
+onOrderTypeChange(): void {
+  console.log('Order Type Changed:', this.selectedOrderType);
+
+  // Ensure the previously selected date range is preserved
+  const startDate = this.selectedStartDate;
+  const endDate = this.selectedEndDate;
+
+  if (!startDate || !endDate) {
+    console.error('Invalid date range!');
+    return;
+  }
+  
+    const teamId = this.dataSource.data[0].teamId;
+  
+
+  // Re-fetch data with the updated order type and preserved date range
+  this.fetchOrdersData(startDate, endDate, teamId);
+}
 
 
 allocateOrders(): void {
@@ -220,15 +270,23 @@ allocateOrders(): void {
         orders: 0
       }));
       
-      // Refresh orders data
-      if (this.dataSource.data.length > 0) {
-        const teamId = this.dataSource.data[0].teamId;
-        this.fetchOrdersData(this.selectedStartDate, this.selectedEndDate, teamId);
-      }
-    },
-    error: (error) => {
-      console.error('Error allocating orders:', error);
+     // Refresh orders data
+     if (this.dataSource.data.length > 0) {
+      const teamId = this.dataSource.data[0].teamId;
+      this.fetchOrdersData(this.selectedStartDate, this.selectedEndDate, teamId);
     }
+
+    // Show success message in card
+    this.showSuccess = true;
+    this.successMessage = 'Orders have been allocated successfully!';
+    this.showCard = true;
+  },
+  error: (error) => {
+    console.error('Error allocating orders:', error);
+    this.showError = true;
+    this.errorMessage = 'Failed to allocate orders. Please try again.';
+    this.showCard = true;
+  }
   });
 }
 
@@ -269,16 +327,39 @@ unallocateOrders(): void {
         orders: 0 // Reset orders left after unallocation
       }));
 
-      // Optionally refresh orders data after unallocation
-      if (this.dataSource.data.length > 0) {
-        const teamId = this.dataSource.data[0].teamId;
-        this.fetchOrdersData(this.selectedStartDate, this.selectedEndDate, teamId);
-      }
-    },
-    error: (error) => {
-      console.error('Error unallocating orders:', error);
+     // Optionally refresh orders data after unallocation
+     if (this.dataSource.data.length > 0) {
+      const teamId = this.dataSource.data[0].teamId;
+      this.fetchOrdersData(this.selectedStartDate, this.selectedEndDate, teamId);
     }
+
+    // Show success message in card
+    this.showSuccess = true;
+    this.successMessage = 'Orders have been unallocated successfully!';
+    this.showCard = true;
+  },
+  error: (error) => {
+    console.error('Error unallocating orders:', error);
+    this.showError = true;
+    this.errorMessage = 'Failed to unallocate orders. Please try again.';
+    this.showCard = true;
+  }
   });
+}
+
+
+
+// Flag variables for controlling the card display
+showCard: boolean = false;
+showSuccess: boolean = false;
+showError: boolean = false;
+successMessage: string = '';
+errorMessage: string = '';
+
+closeCard(): void {
+  this.showCard = false;
+  this.showSuccess = false;
+  this.showError = false;
 }
 
 }

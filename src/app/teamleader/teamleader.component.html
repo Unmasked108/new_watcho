@@ -47,16 +47,26 @@
     </div>
   </div>
 
+  <div class="order-type-container">
+    <div class="card">
+      <h3>Order Type: 149</h3>
+      <p>Total Count: {{ orderType149Count }}</p>
+    </div>
+    <div class="card">
+      <h3>Order Type: 299</h3>
+      <p>Total Count: {{ orderType299Count }}</p>
+    </div>
+  </div>
 
 
-<div class="dropdown-container">
+
+  <div class="dropdown-container">
     <label for="orderType">Order Type</label>
-    <select id="orderType" [(ngModel)]="selectedOrderType">
+    <select id="orderType" [(ngModel)]="selectedOrderType" (change)="onOrderTypeChange()">
       <option value="149">149</option>
       <option value="299">299</option>
     </select>
   </div>
-
   
 
 
@@ -88,6 +98,13 @@
         <mat-header-cell *matHeaderCellDef> Allocated </mat-header-cell>
         <mat-cell *matCellDef="let element"> {{ element.allocated }} </mat-cell>
       </ng-container>
+
+      <ng-container matColumnDef="completionTime">
+        <mat-header-cell *matHeaderCellDef> Completion Time </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          {{ getTimeAgo(element.completionDate) }}
+        </mat-cell>
+      </ng-container>
   
        <!-- Header Row -->
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
@@ -103,5 +120,27 @@
     <button class="btn btn-allocate" (click)="allocateOrders()">Allocate</button>
 
     <button class="btn btn-unallocate" (click)="unallocateOrders()">Unallocate</button>
+  </div>
+  
+
+
+  <div *ngIf="showCard" class="overlay-background">
+    <!-- Success Card -->
+    <div *ngIf="showSuccess" class="custom-alert-card success-card">
+      <div class="alert-content">
+        <h4>Success!</h4>
+        <p>{{ successMessage }}</p>
+        <button class="btn btn-ok" (click)="closeCard()">OK</button>
+      </div>
+    </div>
+  
+    <!-- Error Card -->
+    <div *ngIf="showError" class="custom-alert-card error-card">
+      <div class="alert-content">
+        <h4>Error!</h4>
+        <p>{{ errorMessage }}</p>
+        <button class="btn btn-ok" (click)="closeCard()">OK</button>
+      </div>
+    </div>
   </div>
   

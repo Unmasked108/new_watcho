@@ -19,6 +19,8 @@ interface TeamCount {
   teamId: string;
   allocatedCount: number;
   completionCount: number;
+  completionDate?: string; // Add this property
+
 }
 
 @Component({
@@ -46,7 +48,7 @@ interface TeamCount {
   styleUrl: './dashborad.component.scss'
 })
 export class DashboradComponent implements OnInit{
-  displayedColumns: string[] = ['teamId','teams', 'orders', 'allocated', 'status'];
+  displayedColumns: string[] = ['teamId', 'teams', 'orders', 'allocated', 'completionTime'];
   // dataSource: any[] = [];
   dataSource = new MatTableDataSource<any>([]);
   selectedOrderType: string = '149'; // Default value for order type dropdown
@@ -219,8 +221,8 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
           this.totalOrders = data.totalOrders || 0;
           this.totalLeadsAllocated = data.totalAllocatedCount || 0;
           this.totalLeadsCompleted = data.totalCompletedCount || 0;
-          this.orderType149Count = data.orderType149Count || 0; // Add 149 count
-          this.orderType299Count = data.orderType299Count || 0; // Add 299 count
+          this.orderType149Count = data.orderType149Count || 0;
+          this.orderType299Count = data.orderType299Count || 0;
 
           const teamCounts: TeamCount[] = data.teamCounts;
 
@@ -232,7 +234,9 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
               const allocated = teamData.allocatedCount;
               const completed = teamData.completionCount;
               team.allocated = `${completed}/${allocated}`;
-              team.status = allocated > 0 ? 'Allocated' : 'Pending';
+
+              // Store completion date for time calculations
+              team.completionDate = teamData.completionDate || null;
             }
             return team;
           });
@@ -246,6 +250,23 @@ selectedEndDate: Date = new Date(); // Default end dateselectedEndDate: Date | n
     });
 }
 
+getTimeAgo(completionDate: string | null): string {
+  if (!completionDate) return 'Not Completed';
+
+  const completionTime = new Date(completionDate).getTime();
+  const now = new Date().getTime();
+  const diffInMs = now - completionTime;
+  const diffInMinutes = Math.floor(diffInMs / 60000);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInMinutes < 1) return 'Just now';
+  if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+  if (diffInHours < 2) return `1 hr ago`;
+  if (diffInHours < 24) return `${diffInHours} hrs ago`;
+  if (diffInDays === 1) return `Yesterday`;
+  return `${diffInDays} days ago`;
+}
 
 
 updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
@@ -289,12 +310,14 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
       .subscribe({
         next: (response) => {
           console.log('Orders allocated successfully:', response);
-          alert('Orders have been allocated successfully!');
+          this.showSuccess = true;
+          this.showCard = true;
           this.fetchData(); // Refresh data after allocation
         },
         error: (error) => {
           console.error('Error allocating orders:', error);
-          alert('Failed to allocate orders. Please try again.');
+          this.showError = true;
+          this.showCard = true;
         },
       });
   }
@@ -338,17 +361,31 @@ updateAllocatedCounts(allocatedCount: number, completionCount: number): void {
       .post('http://localhost:5000/api/unallocate-orders', unallocationRequests, { headers })
       .subscribe({
         next: (response) => {
-          console.log('Orders unallocated successfully:', response);
-          alert('Orders have been unallocated successfully!');
-          this.fetchData(); // Refresh data after unallocation
-        },
-        error: (error) => {
-          console.error('Error unallocating orders:', error);
-          alert('Failed to unallocate orders. Please try again.');
-        },
+         console.log('Orders unallocated successfully:', response);
+        this.showSuccess = true;
+        this.showCard = true;
+        this.fetchData(); // Refresh data after unallocation
+      },
+      error: (error) => {
+        console.error('Error unallocating orders:', error);
+        this.showError = true;
+        this.showCard = true;
+      },
       });
   }
   
+
+// Flag variables for controlling the card display
+showCard: boolean = false;
+showSuccess: boolean = false;
+showError: boolean = false;
+
+closeCard(): void {
+  this.showCard = false;
+  this.showSuccess = false;
+  this.showError = false;
+}
+
 
   generateToken() {
     console.log('Token generation logic not implemented yet.');

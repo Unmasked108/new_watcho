@@ -83,7 +83,7 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchTeams();
-    this.role = localStorage.getItem('role'); 
+    this.role = localStorage.getItem('role') || '';
     this.userId = localStorage.getItem('userId');
 
     // this.loadAllResults(); // Load all results initially

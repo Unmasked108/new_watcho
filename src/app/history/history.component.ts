@@ -239,12 +239,7 @@ loadAllResults(): void {
       verification: item.verification || 'N/A',
 
       // Map payment status
-     paymentStatus: 
-      item.status === 'Completed' 
-        ? 'Paid' 
-        : (item.status === 'Allocated' || item.status === 'Assign') 
-          ? 'Unpaid' 
-          : 'N/A',
+      paymentStatus: item.paymentStatus || 'N/A',
       // Profit values
       profit: item.profit || 0,
       memberProfit: item.memberProfit || 0,
